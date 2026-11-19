@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}{{ module.title }} · KrishiParampara{% endblock %}
+{% block body %}
+<header class="page-header"><h1>{{ module.title }}</h1>
+{% if session.operator %}<div class="d-flex gap-2 flex-wrap">
+{% if slug in ['storage','cultivation'] %}<a class="btn btn-outline-primary" href="{{ url_for('web.allocate') }}">Allocate seed</a>{% endif %}
+<a class="btn btn-primary" href="{{ url_for('web.edit', slug=slug) }}">Add record</a>
+</div>{% endif %}
+</header>
+<div class="panel">
+<form class="filter-bar" method="get">
+<label>Search<input class="form-control" type="search" name="q" maxlength="120" placeholder="Search records" value="{{ request.args.get('q','') }}"></label>
+{% for field, options in filters.items() %}<label>{{ field|label }}
+<select class="form-select" name="{{ field }}"><option value="">All</option>
+{% for option in options %}<option {% if request.args.get(field) == option %}selected{% endif %}>{{ option }}</option>{% endfor %}
+</select></label>{% endfor %}
+<button class="btn btn-primary" type="submit">Apply</button>
+{% if request.query_string %}<a class="btn btn-outline-secondary" href="{{ url_for('web.records', slug=slug) }}">Clear</a>{% endif %}
+</form>
+{% if rows %}
+<div class="table-responsive"><table class="table align-middle mb-0">
+<thead><tr>{% for field in module.fields %}<th scope="col">{{ field|label }}</th>{% endfor %}{% if slug == 'storage' %}<th scope="col">Stock alert</th>{% endif %}</tr></thead>
+<tbody>{% for row in rows %}<tr>{% for field in module.fields %}
+<td>{% if loop.first %}<a href="{{ url_for('web.detail',slug=slug,record_id=row.id) }}">{{ row[field] }}</a>
+{% elif field == 'synthetic' %}{{ 'Synthetic' if row[field] else '—' }}
+{% else %}{{ row[field] if row[field] is not none else '—' }}{% endif %}</td>
+{% endfor %}
+{% if slug == 'storage' %}<td>{% if row.current_quantity <= row.low_stock_threshold %}<span class="badge text-bg-warning">Low stock</span>{% else %}—{% endif %}</td>{% endif %}</tr>{% endfor %}</tbody></table></div>
+{% else %}<p class="empty-state">No matching records.</p>{% endif %}
+<nav class="pagination-bar" aria-label="Record pages">
+<span>{{ total }} records · Page {{ page }} of {{ pages }}</span>
+<div class="d-flex gap-2">
+{% if page > 1 %}<a class="btn btn-sm btn-outline-primary" href="{{ url_for('web.records', slug=slug, page=page-1, **other_args) }}">Previous</a>{% endif %}
+{% if page < pages %}<a class="btn btn-sm btn-outline-primary" href="{{ url_for('web.records', slug=slug, page=page+1, **other_args) }}">Next</a>{% endif %}
+</div>
+</nav>
+</div>
+{% endblock %}

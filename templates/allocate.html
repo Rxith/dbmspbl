@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import token with context %}
+{% block body %}
+<a class="back" href="{{ url_for('web.records',slug='storage') }}">← Seed storage</a>
+<header class="page-header"><div><h1>Allocate seed</h1><p>Deduct seed from one batch and create its cultivation record in a single transaction.</p></div></header>
+<form class="panel block" method="post">{{ token() }}<div class="form-grid">
+<label>Seed batch<select class="form-select" name="batch" required><option value="">Select</option>{% for batch in batches %}<option value="{{ batch.id }}" {% if request.form.get('batch') == batch.id|string %}selected{% endif %}>{{ batch.batch_number }} · {{ batch.current_quantity }} {{ batch.quantity_unit }}</option>{% endfor %}</select></label>
+<label>Quantity in batch units<input class="form-control" type="number" min=".001" step=".001" name="quantity" value="{{ request.form.get('quantity','') }}" required></label>
+<label>Farm<select class="form-select" name="farm" required><option value="">Select</option>{% for farm in farms %}<option value="{{ farm.id }}" {% if request.form.get('farm') == farm.id|string %}selected{% endif %}>{{ farm.name }}</option>{% endfor %}</select></label>
+<label>Cultivation code<input class="form-control" name="code" maxlength="40" value="{{ request.form.get('code','') }}" required></label>
+<label>Sowing date<input class="form-control" name="sowing" type="date" value="{{ request.form.get('sowing','') }}" required></label>
+<label>Season<select class="form-select" name="season" required><option value="">Select</option>{% for season in seasons %}<option {% if request.form.get('season') == season %}selected{% endif %}>{{ season }}</option>{% endfor %}</select></label>
+<label>Area (ha)<input class="form-control" name="area" type="number" min=".01" step=".01" value="{{ request.form.get('area','') }}" required></label>
+</div><button class="btn btn-primary mt-4">Allocate and create cultivation</button>
+</form>
+{% endblock %}

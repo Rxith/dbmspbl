@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block body %}
+<section class="hero">
+<p class="eyebrow">Indian Knowledge Systems</p>
+<h1>KrishiParampara</h1>
+<p>A record of traditional Indian agriculture, from indigenous crops and seed stewardship to the work of sowing, tending and harvesting.</p>
+<div class="d-flex gap-2 flex-wrap">
+<a class="btn btn-light" href="{{ url_for('web.records', slug='crops') }}">Explore crops</a>
+{% if session.operator %}<a class="btn btn-outline-light" href="{{ url_for('web.dashboard_page') }}">Open dashboard</a>
+{% else %}<a class="btn btn-outline-light" href="{{ url_for('web.login') }}">Operator sign in</a>{% endif %}
+</div>
+</section>
+<div class="home-grid">
+{% for slug, title, description in [
+('crops','Indigenous crop catalogue','Browse crops by region and growing season, and find related varieties.'),
+('knowledge','Traditional knowledge','Read publicly shared practices and see their sources and reuse terms.'),
+('fertilizers','Organic fertilizers','Explore recorded preparations, ingredients and safety notes.')] %}
+<a class="panel home-card" href="{{ url_for('web.records', slug=slug) }}"><h2>{{ title }}</h2><p>{{ description }}</p><span aria-hidden="true">↗</span></a>
+{% endfor %}
+</div>
+<p class="small text-secondary mt-4">Entries labelled synthetic are classroom data. Crop region and season examples are illustrative.</p>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import table %}
+{% block body %}
+<header class="page-header"><div><h1>Reports</h1><p>Seasonal harvests grouped by harvest year and yield unit.</p></div>
+<a class="btn btn-outline-primary" href="{{ url_for('web.reports',year=year,season=season,format='csv') }}">Download CSV</a></header>
+<section class="panel"><form class="filter-bar" method="get">
+<label>Harvest year<input class="form-control" type="number" min="1000" max="9999" name="year" value="{{ year or '' }}"></label>
+<label>Season<select class="form-select" name="season"><option value="">All</option>{% for item in seasons %}<option {% if item == season %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label>
+<button class="btn btn-primary">Apply</button>
+</form>{{ table(rows) }}</section>
+{% endblock %}

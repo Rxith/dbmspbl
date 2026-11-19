@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import table %}
+{% block body %}
+<header class="page-header"><div><h1>DBMS Demonstration</h1><p>Run predefined MySQL queries against the current records.</p></div></header>
+<div class="panel block">
+<form class="filter-bar p-0" method="get">
+<label>SQL example<select class="form-select" name="example">{% for example in examples %}<option {% if example == selected %}selected{% endif %}>{{ example }}</option>{% endfor %}</select></label><button class="btn btn-primary">Run query</button>
+</form>
+<form class="filter-bar px-0 pb-0" method="get">
+<label>Farmer cultivation procedure<select class="form-select" name="farmer" required><option value="">Select registration</option>{% for farmer in farmers %}<option value="{{ farmer.id }}" {% if farmer_id == farmer.id %}selected{% endif %}>{{ farmer.registration_code }}</option>{% endfor %}</select></label>
+<button class="btn btn-outline-primary">Call procedure</button>
+</form>
+</div>
+<section class="panel"><pre class="sql"><code>{{ sql }}</code></pre>{{ table(rows) }}</section>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard · KrishiParampara{% endblock %}
+{% block body %}
+<header class="page-header"><div><h1>Dashboard</h1><p>Farm activity, harvests and seed conservation at a glance.</p></div><a class="btn btn-primary" href="{{ url_for('web.allocate') }}">Allocate seed</a></header>
+<div class="metric-grid">
+{% for name, key in [('Farmers','farmers'),('Farms','farms'),('Indigenous crops','crops'),('Seed varieties','varieties'),('Active cultivations','active'),('Available seed batches','seed_batches'),('Practices documented','practices')] %}
+<div class="panel metric"><span>{{ name }}</span><strong>{{ stats[key] }}</strong></div>
+{% endfor %}
+<div class="panel metric"><span>Net harvested</span>{% for row in totals %}<strong>{{ "{:,.1f}".format(row.total) }} <small>{{ row.unit }}</small></strong>{% else %}<strong>0</strong>{% endfor %}</div>
+</div>
+<div class="chart-grid">
+{% for title, kind, rows in charts %}
+<section class="panel chart-card {% if loop.last %}wide{% endif %}"><h2>{{ title }}</h2>
+{% if rows %}<div class="chart-canvas"><canvas data-chart="{{ loop.index0 }}" role="img" aria-label="{{ title }}"></canvas></div>
+<details class="chart-data"><summary>View data</summary><ul>{% for row in rows %}<li>{{ row.label }}{% if row.series %} ({{ row.series }}){% endif %} · {{ row.value }}</li>{% endfor %}</ul></details>
+{% else %}<p>No records yet.</p>{% endif %}
+</section>
+{% endfor %}
+</div>
+<script type="application/json" id="chart-data">{{ charts|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}" defer></script>
+{% endblock %}

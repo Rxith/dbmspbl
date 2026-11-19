@@ -1,0 +1,9 @@
+{% macro token() %}<input type="hidden" name="csrf" value="{{ csrf_token() }}">{% endmacro %}
+{% macro table(rows) %}
+{% if rows %}
+<div class="table-responsive"><table class="table align-middle mb-0">
+<thead><tr>{% for col in rows[0] %}<th scope="col">{{ col|label }}</th>{% endfor %}</tr></thead>
+<tbody>{% for row in rows %}<tr>{% for col in rows[0] %}<td>{{ row[col] if row[col] is not none else '—' }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty-state">No results found.</p>{% endif %}
+{% endmacro %}

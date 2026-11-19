@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import token with context %}
+{% block body %}
+<a class="back" href="{{ url_for('web.records', slug=slug) }}">← {{ module.title }}</a>
+<header class="page-header"><div><h1>{{ row[module.fields[0]] }}</h1>
+{% if row.synthetic or (row[module.fields[0]] is string and row[module.fields[0]].startswith('DEMO-')) %}<p>Synthetic demonstration record</p>{% endif %}
+</div>
+{% if session.operator %}<div class="d-flex gap-2">
+<a class="btn btn-primary" href="{{ url_for('web.edit', slug=slug, record_id=row.id) }}">Edit</a>
+<form method="post" data-confirm="Delete this record?" action="{{ url_for('web.delete', slug=slug, record_id=row.id) }}">{{ token() }}<button class="btn btn-outline-danger">Delete</button></form>
+</div>{% endif %}</header>
+<dl class="panel detail-grid">
+{% for field in fields if field.name != 'quantity_history' and row[field.name] is not none %}
+<div><dt>{{ field.name|label }}</dt><dd>
+{% if field.parent %}{% set parent_slug, parent = tables[field.parent] %}
+{% if parent.public or session.operator %}<a href="{{ url_for('web.detail',slug=parent_slug,record_id=row[field.name]) }}">{{ parent.title }} #{{ row[field.name] }}</a>
+{% else %}{{ row[field.name] }}{% endif %}
+{% elif field.boolean %}{{ 'Yes' if row[field.name] else 'No' }}
+{% else %}{{ row[field.name] }}{% endif %}
+</dd></div>{% endfor %}
+</dl>
+{% if related %}<section class="panel block"><h2>Related seed varieties</h2><ul>
+{% for variety in related %}<li><a href="{{ url_for('web.detail',slug='varieties',record_id=variety.id) }}">{{ variety.name }}</a></li>{% endfor %}
+</ul></section>{% endif %}
+{% if slug == 'storage' %}
+<section class="panel block"><h2>Stock management</h2>
+{% if row.current_quantity <= row.low_stock_threshold %}<p class="text-danger">At or below the low-stock threshold.</p>{% endif %}
+<form class="filter-bar p-0" method="post" action="{{ url_for('web.adjust_stock',record_id=row.id) }}">
+{{ token() }}<label>Quantity adjustment ({{ row.quantity_unit }})
+<input class="form-control" type="number" name="delta" step="0.001" required></label>
+<button class="btn btn-primary">Apply adjustment</button>
+</form>
+<details class="mt-3"><summary>Quantity audit history</summary><pre class="mt-2">{{ row.quantity_history }}</pre></details>
+</section>{% endif %}
+{% endblock %}

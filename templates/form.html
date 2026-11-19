@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import token with context %}
+{% block body %}
+<a class="back" href="{{ url_for('web.records',slug=slug) }}">← {{ module.title }}</a>
+<h1>{{ 'Edit' if record_id else 'Add' }} record</h1>
+{% if slug == 'cultivation' %}<p>Choose a crop or a seed variety. A selected variety already identifies its crop.</p>{% endif %}
+{% if slug == 'irrigation' %}<p>Choose a farm for stand-alone irrigation or a cultivation for a crop-specific event.</p>{% endif %}
+{% if slug == 'knowledge' %}<p>Record the source, consent and reuse terms before sharing knowledge publicly.</p>{% endif %}
+{% if errors %}<div class="alert alert-danger" role="alert"><ul class="mb-0">{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul></div>{% endif %}
+<form method="post" class="panel block">{{ token() }}
+<div class="form-grid">
+{% for field in fields %}
+{% set value = values.get(field.name) %}
+{% set value = '' if value is none else value|string %}
+{% set required = field.required or field.nullable == 'NO' %}
+<label class="{% if field.kind == 'text' %}full{% endif %}">{{ field.name|label }}{% if required %} <span class="required" aria-hidden="true">*</span>{% endif %}
+{% if field.options or field.parent or field.kind == 'enum' %}
+<select class="form-select" name="{{ field.name }}" {% if required %}required{% endif %}>
+<option value="">Select</option>
+{% for key, title in field.options %}<option value="{{ key }}" {% if key|string == value %}selected{% endif %}>{{ title }}</option>{% endfor %}
+</select>
+{% elif field.kind == 'text' %}
+<textarea class="form-control" name="{{ field.name }}" rows="3" {% if required %}required{% endif %}>{{ value }}</textarea>
+{% else %}
+<input class="form-control" name="{{ field.name }}" value="{{ value }}" {% if required %}required{% endif %}
+{% if field.kind in ['date','time'] %}type="{{ field.kind }}" {% if field.kind == 'time' %}step="1"{% endif %}
+{% elif field.kind == 'decimal' %}type="number" step="{{ 10 ** -field.scale }}"
+{% elif field.kind in ['int','smallint'] %}type="number" step="1"
+{% elif field.name == 'email' %}type="email"
+{% elif field.name == 'reference_url' %}type="url"
+{% else %}type="text"{% endif %}
+{% if field.max_length %}maxlength="{{ field.max_length }}"{% endif %}>
+{% endif %}
+</label>
+{% endfor %}
+</div>
+<button class="btn btn-primary mt-4" type="submit">Save record</button>
+</form>
+{% endblock %}

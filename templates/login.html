@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import token with context %}
+{% block body %}
+<h1>Operator sign in</h1>
+<p>Sign in to manage farm records and access the dashboard.</p>
+<form class="panel block login-form" method="post">{{ token() }}
+<label class="w-100">Password<input class="form-control" type="password" name="password" autocomplete="current-password" required></label>
+<button class="btn btn-primary mt-3">Sign in</button></form>
+{% endblock %}
